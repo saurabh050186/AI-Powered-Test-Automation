@@ -152,8 +152,8 @@ OLLAMA_MODEL="qwen2.5-coder:7b"
 For **Organization Agent Access** with a protected Copilot Studio agent, you can also configure:
 
 ```env
-ORG_AGENT_CATALOG_URL="https://<environment>.environment.api.powerplatform.com/copilotstudio/dataverse-backed/authenticated/bots/<botId>/conversations?api-version=2022-03-01-preview"
-COPILOT_STUDIO_AGENT_NAME="PCSNeoAgent"
+ORG_AGENT_CATALOG_URL=
+COPILOT_STUDIO_AGENT_NAME=
 
 # Option A: static server-side bearer token
 COPILOT_STUDIO_BEARER_TOKEN=""
