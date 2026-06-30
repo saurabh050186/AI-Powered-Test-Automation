@@ -151,3 +151,33 @@
   opacity: 0.8;
   margin: 1rem 0;
 }
+
+@media (max-width: 720px) {
+  .plan-container {
+    height: auto;
+  }
+
+  .plan-header,
+  .plan-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .plan-header {
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .markdown-viewer,
+  .skeleton-container {
+    padding: 1rem;
+  }
+
+  .empty-plan-prompt,
+  .loading-state {
+    min-height: 18rem;
+    padding: 1rem;
+    text-align: center;
+  }
+}

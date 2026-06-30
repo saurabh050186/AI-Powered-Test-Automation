@@ -106,23 +106,23 @@ export default function JiraIntegration({ settings, stories, setStories, onSelec
         </div>
       </div>
 
-      <div style={{ marginBottom: "2rem" }}>
-        <h3 style={{ fontSize: "0.8rem", color: "#4a5568", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem", fontWeight: 700 }}>
+      <div className="issue-search-block">
+        <h3 className="issue-search-title">
           JIRA ISSUE KEY
         </h3>
-        <div style={{ display: "flex", width: "100%", height: "48px", boxShadow: "0 2px 4px rgba(0,0,0,0.02)" }}>
+        <div className="issue-search-row">
           <input
             type="text"
             placeholder="e.g. TEST-123"
             value={issueKey}
             onChange={(e) => setIssueKey(e.target.value)}
-            style={{ flex: 1, padding: "0 1rem", border: "1px solid #e2e8f0", borderRadius: "8px 0 0 8px", outline: "none", fontSize: "0.95rem" }}
+            className="issue-search-input"
           />
           <button
             className="btn btn-primary"
             onClick={fetchIssues}
             disabled={loading}
-            style={{ borderRadius: "0 8px 8px 0", padding: "0 1.5rem", fontWeight: 600, border: "none", backgroundColor: "#a78bfa", color: "#fff", cursor: loading ? "not-allowed" : "pointer" }}
+            style={{ cursor: loading ? "not-allowed" : "pointer" }}
           >
             {loading && issueKey ? <span className="loader"></span> : "⚡ Fetch"}
           </button>

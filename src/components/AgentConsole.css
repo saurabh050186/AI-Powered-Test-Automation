@@ -734,8 +734,31 @@
 }
 
 @media (max-width: 720px) {
+  .agent-console {
+    gap: 1rem;
+  }
+
+  .agent-header,
+  .agent-catalog-header,
+  .agent-catalog-actions,
+  .runtime-credentials-header,
+  .runtime-controls,
+  .agent-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .agent-context-card {
     min-width: 100%;
+  }
+
+  .agent-chat-surface,
+  .runtime-credentials-card,
+  .runbook-card,
+  .agent-runbook .knowledge-base,
+  .agent-catalog {
+    border-radius: 12px;
+    padding: 1rem;
   }
 
   .agent-message {
@@ -752,5 +775,16 @@
 
   .agent-form-row.two-col {
     grid-template-columns: 1fr;
+  }
+
+  .agent-message-list {
+    max-height: none;
+  }
+
+  .agent-chip,
+  .attached-agent-pill,
+  .add-agent-btn {
+    justify-content: center;
+    width: 100%;
   }
 }
