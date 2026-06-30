@@ -1,0 +1,15 @@
+graph TD
+    A["Frontend Client (React/Vanilla CSS)"] -->|Fetch Stories| B["Next.js API: /api/jira"]
+    A -->|Generate Plan| C["Next.js API: /api/generate/plan"]
+    A -->|Immediate Tab Switch| D["Next.js API: /api/generate/cases"]
+    A -->|Immediate Tab Switch| E["Next.js API: /api/generate/code"]
+    
+    B -->|REST API Request| F[("(Jira Cloud / Mock Fallback)")]
+    
+    C -->|API Request| G{AI Provider Router}
+    D -->|Background API Request| G
+    E -->|Background API Request| G
+    
+    G -->|apiKey| H["OpenAI / Claude / Gemini / Nvidia"]
+    G -->|local| I["Ollama Server"]
+    G -->|fallback| J["Hardcoded Mock Responses"]

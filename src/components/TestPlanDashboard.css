@@ -1,0 +1,153 @@
+.plan-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-header h2 {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.highlight-tag {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+}
+
+.plan-content {
+  flex: 1;
+  background-color: var(--background);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.empty-plan-prompt, .loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.ai-icon, .pulsing-brain {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.pulsing-brain {
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4)); }
+  to { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.8)); }
+}
+
+.markdown-viewer {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.markdown-viewer pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.markdown-viewer h1, .markdown-viewer h2, .markdown-viewer h3 {
+  color: var(--primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-viewer ul, .markdown-viewer ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.plan-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.plan-footer .btn.lg {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Skeleton Loading */
+.skeleton-container {
+  padding: 2rem;
+  flex: 1;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-title {
+  height: 18px;
+  width: 45%;
+}
+
+.skeleton-line {
+  height: 13px;
+  width: 100%;
+}
+
+.skeleton-line.short {
+  width: 70%;
+}
+
+/* Rich Markdown Styles */
+.markdown-viewer h1 { font-size: 1.6rem; }
+.markdown-viewer h2 { font-size: 1.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+.markdown-viewer h3 { font-size: 1.1rem; }
+.markdown-viewer strong { color: var(--foreground); }
+.markdown-viewer code {
+  background: var(--surface);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+}
+.markdown-viewer blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1rem;
+  opacity: 0.8;
+  margin: 1rem 0;
+}

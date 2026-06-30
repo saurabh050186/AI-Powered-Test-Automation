@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "workItemType": "Test Case",
+    "title": "Concise test case title",
+    "areaPath": "",
+    "assignedTo": "",
+    "state": "Design",
+    "steps": [
+      {
+        "testStep": 1,
+        "stepAction": "Short action description",
+        "stepExpected": "Expected result"
+      }
+    ]
+  }
+]

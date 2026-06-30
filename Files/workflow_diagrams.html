@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Workflow Diagrams</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: white; }
+        .diagram-container { margin-bottom: 50px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="diagram-container" id="system-arch">
+        <h2 style="color: black;">System Architecture</h2>
+        <div class="mermaid">
+        graph TD
+            A["Frontend Client (React/Vanilla CSS)"] -->|Fetch Stories| B["Next.js API: /api/jira"]
+            A -->|Generate Plan| C["Next.js API: /api/generate/plan"]
+            A -->|Immediate Tab Switch| D["Next.js API: /api/generate/cases"]
+            A -->|Immediate Tab Switch| E["Next.js API: /api/generate/code"]
+            
+            B -->|REST API Request| F[("(Jira Cloud / Mock Fallback)")]
+            
+            C -->|API Request| G{AI Provider Router}
+            D -->|Background API Request| G
+            E -->|Background API Request| G
+            
+            G -->|apiKey| H["OpenAI / Claude / Gemini / Nvidia"]
+            G -->|local| I["Ollama Server"]
+            G -->|fallback| J["Hardcoded Mock Responses"]
+        </div>
+    </div>
+
+    <div class="diagram-container" id="data-flow">
+        <h2 style="color: black;">Application Data Flow</h2>
+        <div class="mermaid">
+        sequenceDiagram
+            participant U as QA Engineer
+            participant UI as Application UI
+            participant Backend as Next.js API Routes
+            participant AI as AI Providers (LLMs)
+            
+            U->>UI: Select AI Provider & Options
+            U->>UI: Clicks "Fetch Stories"
+            UI->>Backend: GET /api/jira (or uses mock)
+            Backend-->>UI: Display Stories Grid
+            
+            U->>UI: Selects a User Story & Clicks "Generate Plan"
+            UI->>Backend: POST /api/generate/plan
+            Backend->>AI: Prompt Engineering Context
+            AI-->>Backend: Markdown Test Plan
+            Backend-->>UI: Renders Plan Dashboard
+            
+            U->>UI: Clicks "Create Test Cases"
+            UI->>UI: Immediate Tab Switch (Test Cases)
+            UI->>Backend: POST /api/generate/cases (Background)
+            Backend->>AI: Plan + Story Context
+            AI-->>Backend: JSON Array of Granular Cases
+            Backend-->>UI: Update UI with Case Cards
+            
+            U->>UI: Clicks "Generate Code" (Playwright)
+            UI->>UI: Immediate Tab Switch (Code Generator)
+            UI->>Backend: POST /api/generate/code (Background)
+            Backend->>AI: Single Test Case Context
+            AI-->>Backend: Raw Automation Script
+            Backend-->>UI: Display Syntax-Highlighted Code
+        </div>
+    </div>
+</body>
+</html>

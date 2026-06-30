@@ -1,0 +1,12 @@
+ID,Work Item Type,Title,Test Step,Step Action,Step Expected Result
+"TC-MOCK-1-X","Test Case","Verify correct output signals for input X = 0 and internal BX = 0","","",""
+"TC-MOCK-2-X","Test Case","Verify correct output signals for input X = 1 and internal BX = 1","","",""
+"TC-MOCK-3-X","Test Case","Test latching behavior when P_latch = 1 and X changes from 1 to 0","","",""
+"TC-MOCK-4-X","Test Case","Test de-latching behavior when reset RX changes from 0 to 1","","",""
+"TC-MOCK-5-X","Test Case","Verify countdown starts and output becomes 1 after delay for input X = 1 and P_OnDelay = 10s","","",""
+"TC-MOCK-6-X","Test Case","Test decimal Off-Delay values are accepted and executed correctly","","",""
+"TC-MOCK-7-X","Test Case","Verify timer runs and output activates after delay for high P_OnDelay values","","",""
+"TC-MOCK-8-X","Test Case","Verify output remains ON when input signal is steady state","","",""
+"TC-MOCK-9-X","Test Case","Verify output turns OFF after delay for input X transitions from 1 to 0 and P_OffDelay = 10s","","",""
+"TC-MOCK-10-X","Test Case","Verify decimal Off-Delay values are accepted and executed correctly","","",""
+"TC-MOCK-11-X","Test Case","Verify high Off-Delay values complete successfully","","",""

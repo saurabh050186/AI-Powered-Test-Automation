@@ -1,0 +1,174 @@
+.code-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-header h2 {
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.framework-select {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.framework-select:focus {
+  border-color: var(--primary);
+}
+
+.code-editor-wrapper {
+  flex: 1;
+  background-color: var(--background);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-code-prompt, .loading-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+  opacity: 0.7;
+}
+
+.code-icon, .spinning-gear {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.spinning-gear {
+  animation: spin 3s linear infinite;
+}
+
+.code-block {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.code-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.lang-tag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--primary);
+  letter-spacing: 0.05em;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 1.5rem;
+  overflow: auto;
+  flex: 1;
+  background-color: #1e1e1e; /* Dark theme for code */
+  color: #d4d4d4;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.code-block code {
+  font-family: inherit;
+}
+
+/* Code Skeleton Loading */
+.skeleton-code-container {
+  padding: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-code-line {
+  height: 14px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 4px;
+}
+
+/* Code Sub-Tabs */
+.code-tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.code-tab {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.code-tab.has-code {
+  opacity: 0.8;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.code-tab.active {
+  opacity: 1;
+  background-color: rgba(99, 102, 241, 0.12);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.code-tab:hover {
+  opacity: 1;
+}
+
+.tab-dot {
+  color: #10b981;
+  font-size: 0.55rem;
+}
