@@ -61,7 +61,7 @@ export default function TestCaseList({
     } finally {
       setLoading(false);
     }
-  }, [story, plan, settings, customCasesPrompt, setCases]);
+  }, [story, plan, settings, customCasesPrompt, documents, setCases]);
 
   useEffect(() => {
     if (story && plan && cases.length === 0 && !loading && !error) {

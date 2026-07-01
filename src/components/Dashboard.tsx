@@ -49,6 +49,9 @@ export default function Dashboard() {
         apiKey: "",
         model: "",
         baseUrl: "",
+        apiVersion: "",
+        deployment: "",
+        apiKeyHeader: "",
       },
       anthropic: {
         apiKey: "",

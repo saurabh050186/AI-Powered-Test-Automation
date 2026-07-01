@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     // Real Azure DevOps API call
-    let domain = `https://dev.azure.com/${azureOrg}/${azureProject}`;
+    const domain = `https://dev.azure.com/${azureOrg}/${azureProject}`;
 
     const credentials = Buffer.from(`:${azureToken}`).toString('base64');
     let values = [];
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       const wiqlUrl = `${domain}/_apis/wit/wiql?api-version=7.1`;
       const jqlQuery = "Select [System.Id] From WorkItems Where [System.WorkItemType] IN ('User Story', 'Product Backlog Item') AND [System.State] <> 'Closed'";
       
-      let res = await fetch(wiqlUrl, {
+      const res = await fetch(wiqlUrl, {
         method: "POST",
         headers: {
           "Authorization": `Basic ${credentials}`,
@@ -125,13 +125,13 @@ export async function POST(request: Request) {
 
     const stories = values.map((issue: any) => {
       let description = issue.fields["System.Description"] || issue.fields["Microsoft.VSTS.TCM.ReproSteps"] || "No description provided.";
-      let ac = issue.fields["Microsoft.VSTS.Common.AcceptanceCriteria"];
+      const ac = issue.fields["Microsoft.VSTS.Common.AcceptanceCriteria"];
       
       // Basic HTML to Markdown for ADO
       description = description.replace(/<[^>]+>/g, '\n').replace(/\n\s*\n/g, '\n\n').trim();
       
       if (ac) {
-           let acText = ac.replace(/<[^>]+>/g, '\n').replace(/\n\s*\n/g, '\n\n').trim();
+         const acText = ac.replace(/<[^>]+>/g, '\n').replace(/\n\s*\n/g, '\n\n').trim();
            description += `\n\n### ✅ Acceptance Criteria\n${acText}`;
       }
 

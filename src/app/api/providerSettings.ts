@@ -4,16 +4,22 @@ export interface ProviderRuntimeSettings {
   apiKey?: string;
   model?: string;
   baseUrl?: string;
+  apiVersion?: string;
+  deployment?: string;
+  apiKeyHeader?: string;
 }
 
 export interface ResolvedProviderSettings extends ProviderRuntimeSettings {
   apiKey: string;
   model: string;
   baseUrl: string;
+  apiVersion: string;
+  deployment: string;
+  apiKeyHeader: string;
   hasUserBaseUrl: boolean;
 }
 
-const providerDefaults: Record<ProviderId, Required<ProviderRuntimeSettings>> = {
+const providerDefaults: Record<ProviderId, { apiKey: string; model: string; baseUrl: string }> = {
   ollama: {
     apiKey: "",
     model: "qwen2.5-coder:7b",
@@ -105,13 +111,31 @@ function getEnvBaseUrl(provider: string) {
   }
 }
 
+function getEnvApiVersion(provider: string) {
+  return provider === "openai" ? process.env.OPENAI_API_VERSION || "" : "";
+}
+
+function getEnvDeployment(provider: string) {
+  return provider === "openai" ? process.env.OPENAI_AZURE_DEPLOYMENT || "" : "";
+}
+
+function getEnvApiKeyHeader(provider: string) {
+  return provider === "openai" ? process.env.OPENAI_API_KEY_HEADER || "" : "";
+}
+
 export function resolveProviderSettings(provider: string, input?: ProviderRuntimeSettings): ResolvedProviderSettings {
   const defaults = providerDefaults[provider as ProviderId] || providerDefaults.openrouter;
   const inputApiKey = clean(input?.apiKey);
   const inputModel = clean(input?.model);
   const inputBaseUrl = clean(input?.baseUrl);
+  const inputApiVersion = clean(input?.apiVersion);
+  const inputDeployment = clean(input?.deployment);
+  const inputApiKeyHeader = clean(input?.apiKeyHeader);
   const apiKey = inputApiKey || getEnvApiKey(provider);
   const model = inputModel || getEnvModel(provider) || defaults.model;
+  const apiVersion = inputApiVersion || getEnvApiVersion(provider);
+  const deployment = inputDeployment || getEnvDeployment(provider);
+  const apiKeyHeader = inputApiKeyHeader || getEnvApiKeyHeader(provider);
   let baseUrl = (inputBaseUrl || getEnvBaseUrl(provider) || defaults.baseUrl).replace(/\/$/, "");
 
   if (provider === "deepseek" && !inputBaseUrl && !getEnvBaseUrl(provider) && apiKey.startsWith("sk-or-")) {
@@ -122,7 +146,44 @@ export function resolveProviderSettings(provider: string, input?: ProviderRuntim
     apiKey,
     model,
     baseUrl,
+    apiVersion,
+    deployment,
+    apiKeyHeader,
     hasUserBaseUrl: Boolean(inputBaseUrl),
+  };
+}
+
+export function shouldUseAzureOpenAI(settings: ResolvedProviderSettings) {
+  return Boolean(
+    settings.baseUrl &&
+    (
+      settings.apiVersion ||
+      settings.deployment ||
+      settings.apiKeyHeader.toLowerCase() === "api-key" ||
+      (!settings.hasUserBaseUrl && !!process.env.AZURE_OPENAI_ENDPOINT)
+    )
+  );
+}
+
+export function getAzureOpenAIRequest(settings: ResolvedProviderSettings) {
+  const endpoint = settings.baseUrl.replace(/\/$/, "");
+  const deployment = settings.deployment || settings.model;
+  const apiVersion = settings.apiVersion || "2024-12-01-preview";
+  const authHeader = (settings.apiKeyHeader || "api-key").toLowerCase();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (authHeader === "authorization" || authHeader === "bearer") {
+    headers.Authorization = `Bearer ${settings.apiKey}`;
+  } else {
+    headers[settings.apiKeyHeader || "api-key"] = settings.apiKey;
+  }
+
+  return {
+    deployment,
+    headers,
+    url: `${endpoint}/openai/deployments/${encodeURIComponent(deployment)}/chat/completions?api-version=${encodeURIComponent(apiVersion)}`,
   };
 }
 

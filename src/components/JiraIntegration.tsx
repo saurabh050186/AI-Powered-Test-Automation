@@ -17,7 +17,7 @@ export interface JiraSettings {
   customPromptMode: boolean;
   ollamaUrl: string;
   ollamaModel: string;
-  providerSettings: Record<string, { apiKey?: string; model?: string; baseUrl?: string }>;
+  providerSettings: Record<string, { apiKey?: string; model?: string; baseUrl?: string; apiVersion?: string; deployment?: string; apiKeyHeader?: string }>;
   azureOrg: string;
   azureProject: string;
   azureToken: string;

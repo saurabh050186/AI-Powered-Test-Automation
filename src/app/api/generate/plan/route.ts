@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import OpenAI, { AzureOpenAI } from "openai";
+import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
-import { getOpenRouterHeaders, resolveProviderSettings } from "../../providerSettings";
+import { getAzureOpenAIRequest, getOpenRouterHeaders, resolveProviderSettings, shouldUseAzureOpenAI } from "../../providerSettings";
 
 export async function POST(request: Request) {
   try {
@@ -60,7 +60,7 @@ Please include Objective, Scope, detailed Test Scenarios (broken down to granula
               if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
                 try {
                   resolve(JSON.parse(data));
-                } catch (e) {
+                } catch {
                   reject(new Error("Failed to parse JSON response from Ollama"));
                 }
               } else {
@@ -86,30 +86,31 @@ Please include Objective, Scope, detailed Test Scenarios (broken down to granula
         content = ollamaData.message?.content || "";
       } else if (provider === "openai") {
         if (!runtimeSettings.apiKey) throw new Error("OpenAI API Key is missing. Enter it in the UI or .env.local");
-        const prefersAzureFlow =
-          !runtimeSettings.hasUserBaseUrl && !!process.env.AZURE_OPENAI_ENDPOINT ||
-          (process.env.OPENAI_API_KEY_HEADER || "").toLowerCase() === "api-key" ||
-          !!process.env.OPENAI_API_VERSION;
         const modelName = runtimeSettings.model;
 
-        if (prefersAzureFlow) {
+        if (shouldUseAzureOpenAI(runtimeSettings)) {
           const endpoint = runtimeSettings.baseUrl;
           if (!endpoint) {
             throw new Error("AZURE_OPENAI_ENDPOINT is required for Azure-style OpenAI configuration");
           }
-          const deployment = process.env.OPENAI_AZURE_DEPLOYMENT || modelName;
-          const azure = new AzureOpenAI({
-            apiKey: runtimeSettings.apiKey,
-            endpoint,
-            apiVersion: process.env.OPENAI_API_VERSION || "2024-12-01-preview",
-            deployment,
+          const azureRequest = getAzureOpenAIRequest(runtimeSettings);
+          const azureRes = await fetch(azureRequest.url, {
+            method: "POST",
+            headers: azureRequest.headers,
+            body: JSON.stringify({
+              messages: [{ role: "user", content: prompt }],
+              temperature: 0.7,
+            }),
           });
-          const completion = await azure.chat.completions.create({
-            model: deployment,
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.7,
-          });
-          content = completion.choices[0].message.content || "";
+
+          if (!azureRes.ok) {
+            const text = await azureRes.text();
+            const shortBody = text ? ` ${text.slice(0, 300)}` : "";
+            throw new Error(`Azure OpenAI error (${azureRes.status}).${shortBody}`.trim());
+          }
+
+          const completion = await azureRes.json();
+          content = completion?.choices?.[0]?.message?.content || "";
         } else {
           const openAIConfig: ConstructorParameters<typeof OpenAI>[0] = {
             apiKey: runtimeSettings.apiKey,

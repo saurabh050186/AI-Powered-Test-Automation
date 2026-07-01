@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { getOpenRouterHeaders, resolveProviderSettings } from "../providerSettings";
+import { getAzureOpenAIRequest, getOpenRouterHeaders, resolveProviderSettings, shouldUseAzureOpenAI } from "../providerSettings";
 
 const STATUS_CHECK_TIMEOUT_MS = 10000;
+const OLLAMA_STATUS_TIMEOUT_MS = 1500;
 
 type OllamaModel = { name: string };
 type OllamaTagsResponse = { models?: OllamaModel[] };
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
 
     if (provider === "ollama") {
       try {
-        const res = await fetch(`${ollamaHost}/api/tags`, { signal: AbortSignal.timeout(5000) });
+        const res = await fetch(`${ollamaHost}/api/tags`, { signal: AbortSignal.timeout(OLLAMA_STATUS_TIMEOUT_MS) });
         if (!res.ok) return NextResponse.json({ status: "offline", message: "Ollama server not reachable" });
         const data = await res.json() as OllamaTagsResponse;
         const modelExists = data.models?.some(
@@ -77,14 +78,10 @@ export async function POST(req: Request) {
     }
 
     if (provider === "openai") {
-      const prefersAzureFlow =
-        !runtimeSettings.hasUserBaseUrl && !!process.env.AZURE_OPENAI_ENDPOINT ||
-        (process.env.OPENAI_API_KEY_HEADER || "").toLowerCase() === "api-key" ||
-        !!process.env.OPENAI_API_VERSION;
       const modelName = runtimeSettings.model;
 
       try {
-        if (prefersAzureFlow) {
+        if (shouldUseAzureOpenAI(runtimeSettings)) {
           // In Azure mode, use a dedicated endpoint var to avoid SDK baseURL/endpoint conflicts.
           const endpoint = runtimeSettings.baseUrl;
           if (!endpoint) {
@@ -93,15 +90,10 @@ export async function POST(req: Request) {
               message: "OpenAI — AZURE_OPENAI_ENDPOINT is missing"
             });
           }
-          const deployment = process.env.OPENAI_AZURE_DEPLOYMENT || modelName;
-          const apiVersion = process.env.OPENAI_API_VERSION || "2024-12-01-preview";
-          const azureUrl = `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
-          const azureRes = await fetch(azureUrl, {
+          const azureRequest = getAzureOpenAIRequest(runtimeSettings);
+          const azureRes = await fetch(azureRequest.url, {
             method: "POST",
-            headers: {
-              "api-key": apiKey,
-              "Content-Type": "application/json",
-            },
+            headers: azureRequest.headers,
             body: JSON.stringify({
               messages: [{ role: "user", content: "ping" }],
               max_tokens: 1,

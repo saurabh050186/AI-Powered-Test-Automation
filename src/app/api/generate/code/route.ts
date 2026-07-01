@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
-import { getOpenRouterHeaders, resolveProviderSettings } from "../../providerSettings";
+import { getAzureOpenAIRequest, getOpenRouterHeaders, resolveProviderSettings, shouldUseAzureOpenAI } from "../../providerSettings";
 
 export async function POST(request: Request) {
   try {
@@ -46,27 +46,18 @@ Make sure the code is well-structured and uses best practices.`;
         }
       } else if (provider === "openai") {
         if (!runtimeSettings.apiKey) throw new Error("OpenAI API Key is missing. Enter it in the UI or .env.local");
-        const prefersAzureFlow =
-          !runtimeSettings.hasUserBaseUrl && !!process.env.AZURE_OPENAI_ENDPOINT ||
-          (process.env.OPENAI_API_KEY_HEADER || "").toLowerCase() === "api-key" ||
-          !!process.env.OPENAI_API_VERSION;
         const modelName = runtimeSettings.model;
 
-        if (prefersAzureFlow) {
+        if (shouldUseAzureOpenAI(runtimeSettings)) {
           // In Azure mode, use a dedicated endpoint var to avoid SDK baseURL/endpoint conflicts.
           const endpoint = runtimeSettings.baseUrl;
           if (!endpoint) {
             throw new Error("AZURE_OPENAI_ENDPOINT is required for Azure-style OpenAI configuration");
           }
-          const deployment = process.env.OPENAI_AZURE_DEPLOYMENT || modelName;
-          const apiVersion = process.env.OPENAI_API_VERSION || "2024-12-01-preview";
-          const azureUrl = `${endpoint}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
-          const azureRes = await fetch(azureUrl, {
+          const azureRequest = getAzureOpenAIRequest(runtimeSettings);
+          const azureRes = await fetch(azureRequest.url, {
             method: "POST",
-            headers: {
-              "api-key": runtimeSettings.apiKey,
-              "Content-Type": "application/json",
-            },
+            headers: azureRequest.headers,
             body: JSON.stringify({
               messages: [{ role: "user", content: prompt }],
               temperature: 0.1,

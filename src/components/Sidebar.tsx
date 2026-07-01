@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import "./Sidebar.css";
+import type { JiraSettings } from "./JiraIntegration";
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  settings: any;
-  setSettings: (settings: any) => void;
+  settings: JiraSettings;
+  setSettings: React.Dispatch<React.SetStateAction<JiraSettings>>;
 }
 
 const providerLabels: Record<string, { name: string; badge: string; baseUrlLabel: string; apiKeyLabel: string; defaultModel: string; defaultBaseUrl: string }> = {
@@ -25,7 +26,7 @@ const providerLabels: Record<string, { name: string; badge: string; baseUrlLabel
     baseUrlLabel: "Base URL / Azure Endpoint",
     apiKeyLabel: "API Key",
     defaultModel: "gpt-4o-mini",
-    defaultBaseUrl: "Optional for OpenAI; required for custom or Azure endpoints",
+    defaultBaseUrl: "https://api.openai.com/v1 or Azure endpoint",
   },
   anthropic: {
     name: "Anthropic",
@@ -54,7 +55,7 @@ const providerLabels: Record<string, { name: string; badge: string; baseUrlLabel
 };
 
 export default function Sidebar({ activeTab, onTabChange, settings, setSettings }: SidebarProps) {
-  const [aiStatus, setAiStatus] = useState<{ status: string; message: string }>({ status: "checking", message: "Checking..." });
+  const [aiStatus, setAiStatus] = useState<{ status: string; message: string }>({ status: "idle", message: "Click refresh to check" });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
 
@@ -97,10 +98,8 @@ export default function Sidebar({ activeTab, onTabChange, settings, setSettings 
   }, [settings.ollamaUrl]);
 
   useEffect(() => {
-    checkStatus(settings.aiProvider);
-    const interval = setInterval(() => checkStatus(settings.aiProvider), 30000);
-    return () => clearInterval(interval);
-  }, [settings.aiProvider, checkStatus]);
+    setAiStatus({ status: "idle", message: "Click refresh to check" });
+  }, [settings.aiProvider]);
 
   const tabs = [
     { id: "jira", label: "Jira Connection", icon: "🔗" },
@@ -115,7 +114,7 @@ export default function Sidebar({ activeTab, onTabChange, settings, setSettings 
     setSettings({ ...settings, [e.target.name]: e.target.value });
   };
 
-  const handleProviderSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProviderSettingsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const provider = settings.aiProvider;
     setSettings({
       ...settings,
@@ -129,10 +128,11 @@ export default function Sidebar({ activeTab, onTabChange, settings, setSettings 
     });
   };
 
-  const statusIcon = aiStatus.status === "online" ? "🟢" : aiStatus.status === "checking" ? "🔵" : aiStatus.status === "no_key" || aiStatus.status === "no_model" ? "🟡" : "🔴";
-  const statusClass = aiStatus.status === "online" ? "status-online" : aiStatus.status === "checking" ? "status-checking" : aiStatus.status === "no_key" || aiStatus.status === "no_model" ? "status-warning" : "status-offline";
+  const statusIcon = aiStatus.status === "online" ? "🟢" : aiStatus.status === "checking" ? "🔵" : aiStatus.status === "idle" || aiStatus.status === "no_key" || aiStatus.status === "no_model" ? "🟡" : "🔴";
+  const statusClass = aiStatus.status === "online" ? "status-online" : aiStatus.status === "checking" ? "status-checking" : aiStatus.status === "idle" || aiStatus.status === "no_key" || aiStatus.status === "no_model" ? "status-warning" : "status-offline";
 
   const isOllama = settings.aiProvider === "ollama";
+  const isOpenAI = settings.aiProvider === "openai";
   const cloudProvider = providerLabels[settings.aiProvider];
   const cloudProviderSettings = settings.providerSettings?.[settings.aiProvider] || {};
 
@@ -161,7 +161,7 @@ export default function Sidebar({ activeTab, onTabChange, settings, setSettings 
           <div className={`ai-status-indicator ${statusClass}`}>
             <span className="status-dot">{statusIcon}</span>
             <span className="status-text">{aiStatus.message}</span>
-            <button className="status-refresh" onClick={() => checkStatus(settings.aiProvider)} title="Refresh status">
+            <button className="status-refresh" onClick={() => checkStatus(settings.aiProvider)} title="Refresh status" disabled={aiStatus.status === "checking"}>
               🔄
             </button>
           </div>
@@ -288,6 +288,46 @@ export default function Sidebar({ activeTab, onTabChange, settings, setSettings 
                   placeholder={cloudProvider.defaultBaseUrl}
                 />
               </div>
+
+              {isOpenAI && (
+                <>
+                  <div className="form-group">
+                    <label>API Version</label>
+                    <input
+                      type="text"
+                      name="apiVersion"
+                      value={cloudProviderSettings.apiVersion || ""}
+                      onChange={handleProviderSettingsChange}
+                      placeholder="2024-12-01-preview for Azure/APIM"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Deployment Name</label>
+                    <input
+                      type="text"
+                      name="deployment"
+                      value={cloudProviderSettings.deployment || ""}
+                      onChange={handleProviderSettingsChange}
+                      placeholder="Leave blank to use model name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Auth Header</label>
+                    <select
+                      name="apiKeyHeader"
+                      value={cloudProviderSettings.apiKeyHeader || ""}
+                      onChange={handleProviderSettingsChange}
+                      className="settings-select"
+                    >
+                      <option value="">Default</option>
+                      <option value="Authorization">Authorization: Bearer</option>
+                      <option value="api-key">api-key</option>
+                    </select>
+                  </div>
+                </>
+              )}
 
               <div className="provider-tip">
                 Leave any field blank to use the matching value from <code>.env.local</code> or the app default.

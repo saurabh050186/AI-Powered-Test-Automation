@@ -21,7 +21,7 @@ export default function KnowledgeBase({ documents, onAddDocument, onRemoveDocume
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  const handleFileUploads = async (files: FileList | File[]) => {
+  const handleFileUploads = useCallback(async (files: FileList | File[]) => {
     setIsUploading(true);
     let successCount = 0;
     
@@ -70,14 +70,14 @@ export default function KnowledgeBase({ documents, onAddDocument, onRemoveDocume
       setIsUploading(false);
       setCurrentFile(null);
     }
-  };
+  }, [onAddDocument]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
     if (files.length > 0) handleFileUploads(files);
-  }, []);
+  }, [handleFileUploads]);
 
   const onDragOver = (e: React.DragEvent) => {
     e.preventDefault();

@@ -156,7 +156,7 @@ export default function AzureIntegration({ settings, stories, setStories, onSele
           <div className="empty-state">
             <span className="empty-icon">📭</span>
             <h3>No stories fetched yet</h3>
-            <p>Click "Fetch Stories" to load requirements from DevOps.</p>
+            <p>Click &quot;Fetch Stories&quot; to load requirements from DevOps.</p>
           </div>
         )}
       </div>

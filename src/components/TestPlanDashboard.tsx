@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import "./TestPlanDashboard.css";
 
@@ -28,16 +28,6 @@ export default function TestPlanDashboard({
   const [planCopied, setPlanCopied] = useState(false);
   const [customPlanPrompt, setCustomPlanPrompt] = useState("");
 
-  if (!story) {
-    return (
-      <div className="panel empty-state" style={{ height: "100%" }}>
-        <span className="empty-icon">☝️</span>
-        <h3>No User Story Selected</h3>
-        <p>Please select a user story from the Jira Integration tab first.</p>
-      </div>
-    );
-  }
-
   const generatePlan = useCallback(async () => {
     if (!story) return;
     setLoadingPlan(true);
@@ -64,6 +54,16 @@ export default function TestPlanDashboard({
       setLoadingPlan(false);
     }
   }, [story, settings, setPlan, customPlanPrompt]);
+
+  if (!story) {
+    return (
+      <div className="panel empty-state" style={{ height: "100%" }}>
+        <span className="empty-icon">☝️</span>
+        <h3>No User Story Selected</h3>
+        <p>Please select a user story from the Jira Integration tab first.</p>
+      </div>
+    );
+  }
 
   // Auto-generation is disabled to allow users to upload documents first.
   // The user must click the "Generate" button manually.
