@@ -66,3 +66,6 @@ challenge.txt
 # Internal planning docs (not for production)
 /future-plans
 /docs
+
+.vercel
+.env*
